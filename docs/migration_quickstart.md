@@ -45,6 +45,7 @@ This approach simply updates the image source while keeping all metadata names u
     ```
 
 2. **Pause Crossplane and RBAC Manager:**
+> This prevents the controllers from reconciling resources during provider migration, which could lead to resource deletion or orphaning.
 
     ```sh
     kubectl -n crossplane-system scale --replicas=0 deployment/crossplane-rbac-manager
@@ -128,7 +129,8 @@ You may assign a new metadata name to the family provider, but you **must** keep
 
 2. **Pause Crossplane and RBAC Manager:**
 
-    ```sh
+> This prevents the controllers from reconciling resources during provider migration, which could lead to resource deletion or orphaning.
+   ```sh
     kubectl -n crossplane-system scale --replicas=0 deployment/crossplane-rbac-manager
     kubectl -n crossplane-system scale --replicas=0 deployment/crossplane
     ```
@@ -143,12 +145,21 @@ You may assign a new metadata name to the family provider, but you **must** keep
     oracle-samples-provider-oci-objectstorage-8c4d47602759      1/1     1            1           38h
     ```
 
-3. **Delete ProviderConfig (force remove finalizers if needed):**
+4. **Delete ProviderConfig (force remove finalizers if needed):**
 
-    ```sh
-    kubectl delete providerconfig/default
-    kubectl patch providerconfig/default -p '{"metadata":{"finalizers":[]}}' --type=merge
-    ```
+  First, attempt a normal deletion:
+  ```sh
+  kubectl delete providerconfig/default
+  ```
+
+  If the deletion hangs due to finalizers, you can force removal in a separate command:
+
+  > ⚠️ **WARNING**: Force-removing finalizers bypasses Kubernetes safety mechanisms.
+  > Only use this if the deletion is stuck and you've verified no other resources depend on this ProviderConfig.
+
+  ```sh
+  kubectl patch providerconfig/default -p '{"metadata":{"finalizers":[]}}' --type=merge
+  ```
     Verify Deletion:
 
     ```sh
@@ -156,7 +167,7 @@ You may assign a new metadata name to the family provider, but you **must** keep
      No resources found
     ```
    
-5. **Deploy new provider images:**
+4. **Deploy new provider images:**
 
     ```yaml
     cat <<EOF | kubectl apply -f -
@@ -185,7 +196,7 @@ You may assign a new metadata name to the family provider, but you **must** keep
     oracle-samples-provider-oci-objectstorage   True        True      ghcr.io/oracle/provider-oci-objectstorage:v0.0.1-alpha.1-amd64         3m2s
     ```
 
-6. **Resume Crossplane and RBAC Manager:**
+5. **Resume Crossplane and RBAC Manager:**
 
     ```sh
     kubectl -n crossplane-system scale --replicas=1 deployment/crossplane-rbac-manager
@@ -202,7 +213,7 @@ You may assign a new metadata name to the family provider, but you **must** keep
     oracle-samples-provider-oci-objectstorage-8c4d476   1/1     1            1           38h
     ```
 
-7. **Delete the old family provider**  
+6. **Delete the old family provider**  
    (_Caution: Check the provider name properly, do not delete the newly created family provider_)
 
     ```sh
@@ -217,7 +228,7 @@ You may assign a new metadata name to the family provider, but you **must** keep
     oracle-samples-provider-oci-objectstorage   True        True      ghcr.io/oracle/provider-oci-objectstorage:v0.0.1-alpha.1-amd64   3m2s
     ```
 
-8. **Recreate ProviderConfig:**
+7. **Recreate ProviderConfig:**
 
     ```yaml
     cat <<EOF | kubectl apply -f -
@@ -245,7 +256,7 @@ You may assign a new metadata name to the family provider, but you **must** keep
    Check the associated resource sync status:
    
    ```sh
-   $ k get managed 
+   $ kubectl get managed 
     NAME                                                         SYNCED   READY   EXTERNAL-NAME                            AGE
     bucket.objectstorage.oci.upbound.io/bucket-via-crossplane4   True    True    n/iddevjmhjw0n/b/bucket-via-crossplane   17m
     ```
