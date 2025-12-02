@@ -94,7 +94,7 @@ This approach simply updates the image source while keeping all metadata names u
 3. **Deploy new provider images:**
 
     - Use the **same metadata names** from step 1.
-    - Specify the new images (e.g, `ghcr.io/oracle/provider-family-oci:v0.0.1-alpha.1-amd64`, `ghcr.io/oracle/provider-oci-objectstorage:v0.0.1-alpha.1-amd64`)
+    - Specify the new images (e.g, `ghcr.io/oracle/provider-family-oci:v0.0.2`, `ghcr.io/oracle/provider-oci-objectstorage:v0.0.2`)
 
     ```yaml
     cat <<EOF | kubectl apply -f -
@@ -103,23 +103,23 @@ This approach simply updates the image source while keeping all metadata names u
     metadata:
       name: oracle-samples-provider-family-oci  # Existing family provider name
     spec:
-      package: ghcr.io/oracle/provider-family-oci:v0.0.1-alpha.1-amd64
+      package: ghcr.io/oracle/provider-family-oci:v0.0.2
     ---
     apiVersion: pkg.crossplane.io/v1
     kind: Provider
     metadata:
       name: oracle-samples-provider-oci-objectstorage  # Existing sub provider name
     spec:
-      package: ghcr.io/oracle/provider-oci-objectstorage:v0.0.1-alpha.1-amd64
+      package: ghcr.io/oracle/provider-oci-objectstorage:v0.0.2
     EOF
     ```
     Verify the updated packages:
 
     ```sh
     kubectl get providers
-    NAME                                       INSTALLED   HEALTHY   PACKAGE                                                           AGE
-    oracle-samples-provider-family-oci          True        True      ghcr.io/oracle/provider-family-oci:v0.0.1-alpha.1-amd64          3m3s
-    oracle-samples-provider-oci-objectstorage   True        True      ghcr.io/oracle/provider-oci-objectstorage:v0.0.1-alpha.1-amd64   3m2s
+    NAME                                       INSTALLED   HEALTHY   PACKAGE                                             AGE
+    oracle-samples-provider-family-oci          True        True      ghcr.io/oracle/provider-family-oci:v0.0.2          3m3s
+    oracle-samples-provider-oci-objectstorage   True        True      ghcr.io/oracle/provider-oci-objectstorage:v0.0.2   3m2s
     ```
 
 4. **Resume Crossplane and RBAC Manager:**
@@ -206,14 +206,14 @@ You may assign a new metadata name to the family provider, but you **must** keep
     metadata:
       name: oracle-provider-family-oci  # New family provider metadata name
     spec:
-      package: ghcr.io/oracle/provider-family-oci:v0.0.1-alpha.1-amd64
+      package: ghcr.io/oracle/provider-family-oci:v0.0.2
     ---
     apiVersion: pkg.crossplane.io/v1
     kind: Provider
     metadata:
       name: oracle-samples-provider-oci-objectstorage  # Existing sub provider name
     spec:
-      package: ghcr.io/oracle/provider-oci-objectstorage:v0.0.1-alpha.1-amd64
+      package: ghcr.io/oracle/provider-oci-objectstorage:v0.0.2
     EOF
     ```
     Check providers and notice that the newly added family provider has no status:
@@ -221,9 +221,9 @@ You may assign a new metadata name to the family provider, but you **must** keep
     ```sh
     kubectl get providers
     NAME                                       INSTALLED   HEALTHY   PACKAGE                                                                  AGE
-    oracle-provider-family-oci                                        ghcr.io/oracle/provider-family-oci:v0.0.1-alpha.1-amd64                3m3s
+    oracle-provider-family-oci                                        ghcr.io/oracle/provider-family-oci:v0.0.2                              3m3s
     oracle-samples-provider-family-oci          True        True      ghcr.io/oracle-samples/provider-family-oci:v0.0.1-alpha.1-amd64        3m3s
-    oracle-samples-provider-oci-objectstorage   True        True      ghcr.io/oracle/provider-oci-objectstorage:v0.0.1-alpha.1-amd64         3m2s
+    oracle-samples-provider-oci-objectstorage   True        True      ghcr.io/oracle/provider-oci-objectstorage:v0.0.2                       3m2s
     ```
 
 5. **Resume Crossplane and RBAC Manager:**
@@ -253,9 +253,9 @@ You may assign a new metadata name to the family provider, but you **must** keep
 
     ```sh
     kubectl get providers
-    NAME                                       INSTALLED   HEALTHY   PACKAGE                                                           AGE
-    oracle-provider-family-oci                  True        True      ghcr.io/oracle/provider-family-oci:v0.0.1-alpha.1-amd64          3m3s
-    oracle-samples-provider-oci-objectstorage   True        True      ghcr.io/oracle/provider-oci-objectstorage:v0.0.1-alpha.1-amd64   3m2s
+    NAME                                       INSTALLED   HEALTHY   PACKAGE                                               AGE
+    oracle-provider-family-oci                  True        True      ghcr.io/oracle/provider-family-oci:v0.0.2            3m3s
+    oracle-samples-provider-oci-objectstorage   True        True      ghcr.io/oracle/provider-oci-objectstorage:v0.0.2     3m2s
     ```
 
 7. **Recreate ProviderConfig:**
