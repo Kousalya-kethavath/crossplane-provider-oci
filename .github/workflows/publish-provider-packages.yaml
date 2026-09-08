@@ -311,7 +311,7 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Install goimports
-        run: go install golang.org/x/tools/cmd/goimports@latest
+        run: go install golang.org/x/tools/cmd/goimports@v0.45.0
 
       - name: Check Generated Diff
         run: make check-diff
@@ -459,7 +459,6 @@ jobs:
             os="${platform%%_*}"
             arch="${platform##*_}"
             family_arch_image="$family_base_image-$arch"
-            printf '%s\n' "$family_manifest" | grep -E "^[[:space:]]*Platform:[[:space:]]+$os/$arch$"
             docker pull --platform "$os/$arch" "$family_base_image"
             docker tag "$family_base_image" "$family_arch_image"
             docker image inspect "$family_arch_image"
